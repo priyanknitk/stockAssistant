@@ -47,6 +47,7 @@ public class AssistantAdapter extends RecyclerView.Adapter<AssistantAdapter.Assi
         holder.bind(mStockDataList.get(position));
     }
 
+
     @Override
     public int getItemCount() {
         return mStockDataList.size();

@@ -9,6 +9,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final int STOCK_LOADER = 715;
     private static final String FINANCE_BASE_URL = "http://finance.google.com/finance/info";
     private StockStorageUtil mStockStorageUtil;
+    private ItemTouchHelper mItemTouchHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         mSharedPreferences =  PreferenceManager.getDefaultSharedPreferences(this);
         mStockStorageUtil = new StockStorageUtil(this);
+        mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                mStockStorageUtil.deleteStockTicker(viewHolder.getAdapterPosition());
+                getSupportLoaderManager().restartLoader(STOCK_LOADER, null, MainActivity.this);
+            }
+        });
+        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 
     @Override
@@ -84,8 +99,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             @Override
             public List<StockData> loadInBackground() {
-                String stockDataString = mStockStorageUtil.getTickers();
                 List<StockData> stockDataList = new ArrayList<StockData>();
+                String stockDataString = mStockStorageUtil.getTickers();
+                if(TextUtils.isEmpty(stockDataString))
+                {
+                    return stockDataList;
+                }
                 try {
                     String response = NetworkUtils.GetResponseFromHttpUrl(NetworkUtils.GetUrl(FINANCE_BASE_URL, stockDataString));
                     StockDataModel[] stockDataModelArray = Utilities.ParseFinanceResponse(response);

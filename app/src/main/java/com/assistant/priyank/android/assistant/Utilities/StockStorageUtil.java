@@ -3,6 +3,9 @@ package com.assistant.priyank.android.assistant.Utilities;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
+
+import java.util.ArrayList;
 
 /**
  * Created by primanda on 4/16/2017.
@@ -27,7 +30,13 @@ public class StockStorageUtil {
         else {
             builder = new StringBuilder("");
         }
-        builder.append("," + ticker);
+        if(TextUtils.isEmpty(builder)) {
+            builder.append(ticker);
+        }
+        else {
+            builder.append("," + ticker);
+        }
+
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         editor.putString(STOCK_LIST_KEY, builder.toString());
         editor.commit();
@@ -41,5 +50,20 @@ public class StockStorageUtil {
             stockDataString = mSharedPreferences.getString(STOCK_LIST_KEY, "");
         }
         return stockDataString;
+    }
+
+    public void deleteStockTicker(int position) {
+        String tickers = getTickers();
+        String[] tickerArray = tickers.split(",");
+        StringBuilder newTickerList = new StringBuilder("");
+        for(int i = 0; i < tickerArray.length; i++) {
+            if (i == position) {
+                continue;
+            }
+            newTickerList.append(tickerArray[i] + ",");
+        }
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString(STOCK_LIST_KEY, newTickerList.toString());
+        editor.commit();
     }
 }
