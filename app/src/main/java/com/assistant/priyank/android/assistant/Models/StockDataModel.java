@@ -7,4 +7,5 @@ package com.assistant.priyank.android.assistant.Models;
 public class StockDataModel {
     public String t;
     public String l_cur;
+    public String c;
 }

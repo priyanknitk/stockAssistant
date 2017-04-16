@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.assistant.priyank.android.assistant.Models.ChangeDirection;
 import com.assistant.priyank.android.assistant.Models.StockData;
 
 import java.util.ArrayList;
@@ -63,8 +64,16 @@ public class AssistantAdapter extends RecyclerView.Adapter<AssistantAdapter.Assi
             View view = this.itemView;
             TextView quoteNameTextView = (TextView) view.findViewById(R.id.quoteNameTextView);
             TextView quoteValueTextView = (TextView) view.findViewById(R.id.quoteValueTextView);
+            TextView quoteChangeTextView = (TextView) view.findViewById(R.id.quoteChangeTextView);
             quoteNameTextView.setText(stockData.StockTicker);
             quoteValueTextView.setText(Html.fromHtml(stockData.StockValue));
+            quoteChangeTextView.setText(stockData.Change);
+            if(stockData.ChangeDirection == ChangeDirection.UP) {
+                quoteChangeTextView.setTextColor(view.getResources().getColor(R.color.green));
+            }
+            else {
+                quoteChangeTextView.setTextColor(view.getResources().getColor(R.color.colorAccent));
+            }
         }
     }
 }
