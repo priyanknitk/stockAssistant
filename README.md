@@ -1,1 +1,1 @@
-Read me
+A simple Stock assistant
