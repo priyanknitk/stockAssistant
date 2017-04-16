@@ -70,9 +70,12 @@ public class AssistantAdapter extends RecyclerView.Adapter<AssistantAdapter.Assi
             quoteChangeTextView.setText(stockData.Change);
             if(stockData.ChangeDirection == ChangeDirection.UP) {
                 quoteChangeTextView.setTextColor(view.getResources().getColor(R.color.green));
+                quoteValueTextView.setTextColor(view.getResources().getColor(R.color.green));
+
             }
             else {
                 quoteChangeTextView.setTextColor(view.getResources().getColor(R.color.colorAccent));
+                quoteValueTextView.setTextColor(view.getResources().getColor(R.color.colorAccent));
             }
         }
     }
