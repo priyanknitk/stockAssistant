@@ -1,6 +1,7 @@
 package com.assistant.priyank.android.assistant;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.assistant.priyank.android.assistant.Models.ChangeDirection;
 import com.assistant.priyank.android.assistant.Models.StockData;
+import com.assistant.priyank.android.assistant.Utilities.StockNewsActivity;
 
 import java.util.ArrayList;
 import java.util.List;

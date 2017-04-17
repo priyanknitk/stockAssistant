@@ -1,5 +1,6 @@
 package com.assistant.priyank.android.assistant;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -12,12 +13,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.assistant.priyank.android.assistant.Models.StockData;
 import com.assistant.priyank.android.assistant.Models.StockDataModel;
 import com.assistant.priyank.android.assistant.Utilities.NetworkUtils;
+import com.assistant.priyank.android.assistant.Utilities.StockNewsActivity;
 import com.assistant.priyank.android.assistant.Utilities.StockStorageUtil;
 import com.assistant.priyank.android.assistant.Utilities.Utilities;
 
@@ -147,5 +151,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mStockStorageUtil.addTicker(stockTicker.getText().toString());
         view.clearFocus();
         stockTicker.setText("");
+    }
+    public void OnTileClick(View view) {
+        TextView quoteNameTextView = (TextView) view.findViewById(R.id.quoteNameTextView);
+        Intent intent = new Intent(view.getContext(), StockNewsActivity.class);
+        intent.putExtra("TICKER", quoteNameTextView.getText().toString());
+        startActivity(intent);
     }
 }
