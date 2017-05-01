@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,6 +40,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final String FINANCE_BASE_URL = "http://finance.google.com/finance/info";
     private StockStorageUtil mStockStorageUtil;
     private ItemTouchHelper mItemTouchHelper;
+    private ConstraintLayout mDataContainer;
+    private TextView mNoDataTextView;
+    private SwipeRefreshLayout mSwipeRefreshContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +53,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mRecyclerView.setLayoutManager(layoutManager);
         mAdapter = new AssistantAdapter();
         mRecyclerView.setAdapter(mAdapter);
+        mDataContainer = (ConstraintLayout) findViewById(R.id.data_container);
+        mNoDataTextView = (TextView) findViewById(R.id.no_data_text);
+        mSwipeRefreshContainer = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+
         Loader<List<StockData>> stockLoader = getSupportLoaderManager().getLoader(STOCK_LOADER);
         if(stockLoader != null) {
             getSupportLoaderManager().restartLoader(STOCK_LOADER, null, this);
@@ -55,6 +64,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         else {
             getSupportLoaderManager().initLoader(STOCK_LOADER, null, this);
         }
+
+        mSwipeRefreshContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getSupportLoaderManager().restartLoader(STOCK_LOADER, null, MainActivity.this);
+            }
+        });
 
         mSharedPreferences =  PreferenceManager.getDefaultSharedPreferences(this);
         mStockStorageUtil = new StockStorageUtil(this);
@@ -110,11 +126,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     return stockDataList;
                 }
                 try {
-                    String response = NetworkUtils.GetResponseFromHttpUrl(NetworkUtils.GetUrl(FINANCE_BASE_URL, stockDataString));
-                    StockDataModel[] stockDataModelArray = Utilities.ParseFinanceResponse(response);
-                    for (StockDataModel stockDataModel :
-                            stockDataModelArray) {
-                        stockDataList.add(new StockData(stockDataModel));
+                    if(!Utilities.IsConnectedToInternet(MainActivity.this)) {
+                        mNoDataTextView.setVisibility(View.VISIBLE);
+                        mDataContainer.setVisibility(View.INVISIBLE);
+                    }
+                    else {
+                        mNoDataTextView.setVisibility(View.INVISIBLE);
+                        mDataContainer.setVisibility(View.VISIBLE);
+                        String response = NetworkUtils.GetResponseFromHttpUrl(NetworkUtils.GetUrl(FINANCE_BASE_URL, stockDataString));
+                        StockDataModel[] stockDataModelArray = Utilities.ParseFinanceResponse(response);
+                        for (StockDataModel stockDataModel :
+                                stockDataModelArray) {
+                            stockDataList.add(new StockData(stockDataModel));
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -129,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mProgressBar.setVisibility(View.INVISIBLE);
         mAdapter.setStockDataList(data);
-        mRecyclerView.setAdapter(mAdapter);
+        mSwipeRefreshContainer.setRefreshing(false);
     }
 
     @Override
